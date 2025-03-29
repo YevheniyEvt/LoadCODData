@@ -1,5 +1,8 @@
 """
 Prepare and load data to database
+Param in function with default None -
+it`s parameter for test.
+If test is running func take them else it`s None
 """
 from datetime import datetime
 import time
@@ -14,8 +17,13 @@ import load_data
 import config
 from models import Player, PlayerData, Alliance, Season
 
+def generate_session():
+    while True:
+        with Session(config.ENGINE) as session:
+            yield session
 
-SessionConnected = Session(config.ENGINE)
+SessionConnected = generate_session()
+
 
 @dataclass
 class PlayerInfo:
@@ -23,7 +31,7 @@ class PlayerInfo:
 
     game_id: int = field(default=None)
     name: str = field(default=None)
-    alliance: Alliance = field(default=None)
+    alliance_id: int = field(default=None)
 
     def player_id(self):
         """
@@ -63,103 +71,105 @@ class PreparePlayerData:
     defeats: int = field(default=None)
     dead: int = field(default=None)
     merits: int | None = field(default=None)
-    player: Player = field(default=None)
+    player_id: int = field(default=None)
     season_id: int = field(default=1)
 
-    def from_dict(self, data: dict):
-        for key, value in data.items():
-            self.__dict__[key] = value
 
-def create_season():
+    def __call__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
+def create_season()->None:
     season = Season(name='SoS4-6014')
-    with SessionConnected as session:
-        session.add(season)
-        session.commit()
+    session = next(SessionConnected)
+    session.add(season)
+    session.commit()
 
-def check_player_data_database(player_game_id: int) -> bool:
+def check_player_data_database(player_game_id: int, session=None) -> bool:
     """
         Check! was player data saved to database today?
         :param player_game_id: int
+        :param session: Session
         :return: bool
+
     """
-    with (SessionConnected as session):
-        player = session.scalar(select(Player).where(Player.game_id == player_game_id))
-        player_db = session.execute(select(PlayerData)
-                                    .where(PlayerData.player == player)
-                                    .where(func.date(PlayerData.add_date) == datetime.now().date())
-                                    ).first()
-        if player_db is not None:
-            print(f'Data{player_db} is already saved!')
-            time.sleep(2)
-        return player_db is not None
+    if session is None:
+        session = next(SessionConnected)
+    stmt = (
+        select(PlayerData)
+        .join(PlayerData.player)
+        .where(Player.game_id == player_game_id)
+        .where(func.date(PlayerData.add_date) == datetime.now().date())
+    )
+    player_data_db = session.scalars(stmt).first()
+    if player_data_db is not None:
+        time.sleep(0.3)
+    return player_data_db is not None
 
-
-def create_alliance_data()-> Alliance:
+def create_alliance_data(session:Session = None)-> Alliance:
     """
         Get data from scanned screen,
         then save data in database alliance table.
+        :param session: Session
         :return: Alliance
     """
-    run = True
-    while run:
+    if session is None:
+        session = next(SessionConnected)
+    while True:
         alliance_data = load_data.load_alliance_info()
-        alliance = Alliance(**alliance_data)
-        if alliance_data.get('short_name', None) is not None:
-            smt = select(Alliance).where(
-                Alliance.short_name == alliance_data.get('short_name', None)
-            )
-            with SessionConnected as session:
-                try:
-                    session.scalars(smt).one()
-                except sqlalchemy.exc.NoResultFound:
-                    session.add(alliance)
-                    session.commit()
-                    print(alliance)
+        smt = (select(Alliance).
+               where(Alliance.short_name == alliance_data.get('short_name', None))
+               )
+        try:
+            alliance= session.scalars(smt).one()
+            return alliance
+        except sqlalchemy.exc.NoResultFound:
+
+            alliance = Alliance(**alliance_data)
+            session.add(alliance)
+            session.commit()
         return alliance
 
-def create_player_info() -> Player:
+def create_player_info(session:Session = None) -> Player:
     """
         Get data from scanned screen,
         prepare it in PlayerInfo dataclass,
         then save data in database player_info table
         and return Player instance
+        :param session: Session
         :return: Player
     """
-    print('Start create new player')
+    print('Start create player')
     player_info = PlayerInfo()
+    if session is None:
+        session = next(SessionConnected)
     while player_info.game_id is None:
         player_info.player_id()
 
-    print('Wait for copy player name...')
-    while player_info.name is None:
-        player_info.player_name()
+    smt = (select(Player)
+           .where(Player.game_id == player_info.game_id)
+           )
 
-    smt = select(Player).where(
-        Player.game_id == player_info.game_id)
     try:
-        with SessionConnected as session:
-            session.scalars(smt).one()
+        player = session.scalars(smt).one()
+
+        return player
     except sqlalchemy.exc.NoResultFound:
+        print('Wait for copy player name...')
+        while player_info.name is None:
+            player_info.player_name()
 
         print(f'Load {player_info.name} alliance...')
-        while player_info.alliance is None:
-            with SessionConnected as session:
-                load_info = load_data.load_player_info()
-                alliance = session.scalar(select(Alliance).where(
-                        Alliance.short_name == load_info.get('alliance')))
-                if alliance is None:
-                    alliance = create_alliance_data()
-                player_info.alliance = alliance
+        while player_info.alliance_id is None:
+            alliance = create_alliance_data(session=session)
+            player_info.alliance_id = alliance.id
 
-        with SessionConnected as session:
-            player = Player(**asdict(player_info))
-            session.add(player)
-            session.commit()
-            print(f'Player: {player} saved!')
-    return player
+        player = Player(**asdict(player_info))
+        session.add(player)
+        session.commit()
+        print(f'Player: {player} saved!')
+        return player
 
-def create_player_data()-> None:
+def create_player_data(session:Session = None)-> None:
     """
         Get data from scanned screen,
         prepare it in PlayerInfo dataclass,
@@ -169,15 +179,16 @@ def create_player_data()-> None:
         Player id we copy in game then paste here.
         To stop running program just copy 'stop'
         :return: None
+        :param session: Session
+
     """
     print('Load player data')
     run = True
     previous_player_id = 0
     while run:
-
         player_data = PreparePlayerData()
         print('Wait for copy player id or copy "stop" to STOP program...')
-        while player_data.player is None:
+        while player_data.player_id is None:
             if str(pyperclip.paste()).lower() == 'stop':
                 run = False
                 print('Stop scanning')
@@ -189,35 +200,37 @@ def create_player_data()-> None:
                 continue
 
             player_id = int(pyperclip.paste())
-            data_in_database = check_player_data_database(player_id)
+            data_in_database = check_player_data_database(player_game_id=player_id, session=session)
             if  data_in_database:
                 continue
 
             if player_id != previous_player_id:
-                smt = select(Player).where(
-                    Player.game_id == player_id)
-                try:
-                    with SessionConnected as session:
-                        player = session.scalars(smt).one()
-                        player_data.player = player
+                player_data.player_id = create_player_info(session=session).id
 
-                except sqlalchemy.exc.NoResultFound:
-                    player_data.player = create_player_info()
         if not run:
             break
+
         while player_data.merits is None:
-            player_data.merits = load_data.load_player_info().get('merits', None)
+            player_data.merits = load_data.load_player_info().get('merits', 0)
+
         print('Wait for load player data...')
         while None in asdict(player_data).values():
             data = load_data.load_player_data()
-            player_data.from_dict(data)
+            player_data(**data)
 
-        with SessionConnected as session:
-            player_data_db = PlayerData(**asdict(player_data))
-            session.add(player_data_db)
-            session.commit()
-            previous_player_id = player_data_db.player.game_id
-            print(f'{player_data_db} saved!')
+        if session is None:
+            session = next(SessionConnected)
+
+        player_data_db = PlayerData(**asdict(player_data))
+        session.add(player_data_db)
+        session.commit()
+        previous_player_id = player_data_db.player.game_id
+        print(f'{player_data_db} saved!')
+
+        if config.TEST:
+            session.close()
+            run = False
+
 
 
 

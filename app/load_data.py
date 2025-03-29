@@ -6,6 +6,7 @@ import config
 from scan_and_read import scan_screen
 
 
+
 def load_player_data(text=None)->dict:
     """
         Load data from screenshot
@@ -13,7 +14,7 @@ def load_player_data(text=None)->dict:
         :return: dict
     """
     if text is None:
-        text = scan_screen()
+        text = scan_screen(func='player_data')
     clear_text = text[text.find('Historical'):text.find('Gathered')].split('\n')
     data_dict = {}
 
@@ -67,7 +68,7 @@ def load_player_info(text=None) -> dict:
         :return: dict
     """
     if text is None:
-        text = scan_screen(region=config.PLAYER_INFO_COORD)
+        text = scan_screen(region=config.PLAYER_INFO_COORD, func='player_info')
     data_dict = {}
     clear_text = text[text.find('#'): text.find('Achievements')].split('\n')
     for data in clear_text:
@@ -95,7 +96,7 @@ def load_alliance_info(text=None)->dict:
     """
     data_dict = {}
     if text is None:
-        text = scan_screen(region=config.ALLIANCE_INFO_COORD)
+        text = scan_screen(region=config.ALLIANCE_INFO_COORD, func='alliance')
     for data in text.split('\n'):
         match data:
             case data if '#' in data:

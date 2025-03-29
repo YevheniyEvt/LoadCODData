@@ -4,7 +4,7 @@ Run program
 from models import Base
 import config
 
-from database import create_player_data
+from database import create_player_data, create_alliance_data
 
 
 def create_table():
@@ -13,4 +13,5 @@ def create_table():
 print(config.DATABASE_URL)
 if __name__ == '__main__':
     print('Start')
+    create_table()
     create_player_data()
