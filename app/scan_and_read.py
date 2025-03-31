@@ -3,6 +3,7 @@ All what need to scan screen
 """
 import pytesseract
 import pyautogui
+
 import config
 
 pytesseract.pytesseract.tesseract_cmd = config.PYTESSERACT_PATH

@@ -1,10 +1,8 @@
-import time
 
 import pytest
 import pytesseract
 
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy import create_engine
 
 from app import config
 from app.models import Base, Season, Alliance, Player
@@ -12,10 +10,6 @@ from app.models import Base, Season, Alliance, Player
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
-
-PLAYER_DATA_IMAGE = 'C:\\MyProects\\LoadCODData\\app\\test\\images\\player_data.png'
-PLAYER_INFO_IMAGE ='C:\\MyProects\\LoadCODData\\app\\test\\images\\player_info.png'
-ALLIANCE_INFO_IMAGE = f'C:\\MyProects\\LoadCODData\\app\\test\\images\\alliance_info.png'
 
 @pytest.fixture(name='engine')
 def create_test_engine():
@@ -34,20 +28,20 @@ def create_session(engine):
 @pytest.fixture(name='player_data')
 def create_player_data()->str:
     custom_config = r'--oem 3 --psm 6'
-    text = pytesseract.image_to_string(PLAYER_DATA_IMAGE, config=custom_config)
+    text = pytesseract.image_to_string(config.PLAYER_DATA_IMAGE, config=custom_config)
     return text
 
 @pytest.fixture(name='player_info')
 def create_player_info()->str:
     custom_config = r'--oem 3 --psm 6'
-    text = pytesseract.image_to_string(PLAYER_INFO_IMAGE, config=custom_config)
+    text = pytesseract.image_to_string(config.PLAYER_INFO_IMAGE, config=custom_config)
     return text
 
 @pytest.fixture(name='alliance_info')
 def create_alliance_info()->str:
     custom_config = r'--oem 3 --psm 6'
 
-    text = pytesseract.image_to_string(ALLIANCE_INFO_IMAGE, config=custom_config)
+    text = pytesseract.image_to_string(config.ALLIANCE_INFO_IMAGE, config=custom_config)
     return text
 
 @pytest.fixture(name='create_season')

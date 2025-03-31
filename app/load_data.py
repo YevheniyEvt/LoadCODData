@@ -6,7 +6,6 @@ import config
 from scan_and_read import scan_screen
 
 
-
 def load_player_data(text=None)->dict:
     """
         Load data from screenshot

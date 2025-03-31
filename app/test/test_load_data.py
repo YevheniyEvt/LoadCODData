@@ -3,6 +3,7 @@ import datetime
 import pyperclip
 
 from multiprocessing import Process, Event
+
 from sqlalchemy import select
 
 from app.models import Alliance, Player, PlayerData

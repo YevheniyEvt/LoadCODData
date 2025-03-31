@@ -4,12 +4,13 @@ Param in function with default None -
 it`s parameter for test.
 If test is running func take them else it`s None
 """
-from datetime import datetime
-import time
-import pyperclip
-from dataclasses import dataclass, field, asdict
 
-import sqlalchemy.exc
+import time
+from dataclasses import dataclass, field, asdict
+from datetime import datetime
+
+import pyperclip
+import sqlalchemy
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 

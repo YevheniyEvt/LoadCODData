@@ -3,7 +3,7 @@ Configuration and const
 """
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
-from decouple import config
+from decouple import config as con
 
 
 DEBUG = True
@@ -22,11 +22,11 @@ PYTESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract'
 TO_STRING_CONFIG = r'--oem 3 --psm 6'
 
 # Database configurations
-USERNAME = config('DATABASE_USERNAME')
-PASSWORD = config('DATABASE_PASSWORD')
-HOST = config('DATABASE_HOSTNAME')
-PORT = config('DATABASE_PORT')
-DATABASE = config('DATABASE_NAME')
+USERNAME = con('DATABASE_USERNAME')
+PASSWORD = con('DATABASE_PASSWORD')
+HOST = con('DATABASE_HOSTNAME')
+PORT = con('DATABASE_PORT')
+DATABASE = con('DATABASE_NAME')
 POSTGRES_DATABASE = URL.create(
     "postgresql+psycopg2",
     username=USERNAME,
