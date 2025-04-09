@@ -1,8 +1,6 @@
 
 import datetime
-import pyperclip
-
-from multiprocessing import Process, Event
+from unittest.mock import patch
 
 from sqlalchemy import select
 
@@ -41,39 +39,45 @@ def test_create_alliance_data(session):
     assert alliance.name == 'Demons of Chaos'
     assert alliance.short_name == 'D~C'
 
-def copy_name():
-    Event().wait(0.5)
-    pyperclip.copy('Testname')
+
 
 def test_create_player_info(create_alliance, session):
-    name = Process(target=copy_name)
-    pyperclip.copy(10000)
-    name.start()
-    create_player_info(session=session)
-    player_info = session.scalar(select(Player)
-                                 .where(Player.game_id == 10000)
-                                 )
-    assert player_info.name == 'Testname'
-    assert player_info.alliance.short_name == 'D~C'
-    assert player_info.alliance.name == 'Tested alliance'
+    paste_sequence = iter([
+        "",
+        "10000",
+        "Testname",
+        "Testname",
+    ])
+
+    def fake_paste():
+        return next(paste_sequence)
+    with patch('pyperclip.paste', side_effect=fake_paste):
+        create_player_info(session=session)
+
+        player_info = session.scalar(select(Player)
+                                     .where(Player.game_id == 10000)
+                                     )
+        assert player_info.name == 'Testname'
+        assert player_info.alliance.short_name == 'D~C'
+        assert player_info.alliance.name == 'Tested alliance'
 
 def test_create_player_data(create_player, session):
-    pyperclip.copy(100000)
-    create_player_data(session=session)
-    stmt = (
-        select(PlayerData)
-        .join(PlayerData.player)
-        .where(Player.game_id == 100000)
-    )
-    player_data_db = session.scalars(stmt).first()
-    assert player_data_db.merits == 350632
-    assert player_data_db.power == 117905975
-    assert player_data_db.highest_power == 129971875
-    assert player_data_db.city_sieges == 220
-    assert player_data_db.killed == 610313412
-    assert player_data_db.healed == 274898704
-    assert player_data_db.victories == 104145
-    assert player_data_db.defeats == 46502
-    assert player_data_db.dead == 780254
-    assert player_data_db.season_id == 1
-    assert player_data_db.add_date.date() == datetime.datetime.now().date()
+    with patch('pyperclip.paste', return_value=100000):
+        create_player_data(session=session)
+        stmt = (
+            select(PlayerData)
+            .join(PlayerData.player)
+            .where(Player.game_id == 100000)
+        )
+        player_data_db = session.scalars(stmt).first()
+        assert player_data_db.merits == 350632
+        assert player_data_db.power == 117905975
+        assert player_data_db.highest_power == 129971875
+        assert player_data_db.city_sieges == 220
+        assert player_data_db.killed == 610313412
+        assert player_data_db.healed == 274898704
+        assert player_data_db.victories == 104145
+        assert player_data_db.defeats == 46502
+        assert player_data_db.dead == 780254
+        assert player_data_db.season_id == 1
+        assert player_data_db.add_date.date() == datetime.datetime.now().date()
