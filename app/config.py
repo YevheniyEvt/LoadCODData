@@ -1,6 +1,7 @@
 """
 Configuration and const
 """
+from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
@@ -9,6 +10,8 @@ from decouple import config as con
 
 DEBUG = True
 TEST = True
+
+BASE_DIR = Path(__file__).parent
 
 # Image and coord to load player info data
 IMAGE_TO_REGION_PLAYER = '../images/check_stat.png'
@@ -50,7 +53,11 @@ ENGINE = create_engine(DATABASE_URL, echo=ECHO)
 
 
 # all for testing
-PLAYER_DATA_IMAGE = '..\\app\\test\\images\\player_data.png'
-PLAYER_INFO_IMAGE ='..\\app\\test\\images\\player_info.png'
-ALLIANCE_INFO_IMAGE = '..\\app\\test\\images\\alliance_info.png'
+# PLAYER_DATA_IMAGE = '..\\app\\test\\images\\player_data.png'
+# PLAYER_INFO_IMAGE ='..\\app\\test\\images\\player_info.png'
+# ALLIANCE_INFO_IMAGE = '..\\app\\test\\images\\alliance_info.png'
+
+PLAYER_DATA_IMAGE = BASE_DIR / 'test' / 'images' / 'player_data.png'
+PLAYER_INFO_IMAGE = BASE_DIR / 'test' / 'images' / 'player_info.png'
+ALLIANCE_INFO_IMAGE = BASE_DIR / 'test' / 'images' / 'alliance_info.png'
 CUSTOM_CONFIG = r'--oem 3 --psm 6'

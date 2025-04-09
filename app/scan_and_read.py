@@ -9,9 +9,6 @@ import config
 if platform.system() == 'Windows':
     pytesseract.pytesseract.tesseract_cmd = config.PYTESSERACT_PATH
 
-ALLIANCE_TEXT = pytesseract.image_to_string(config.ALLIANCE_INFO_IMAGE, config=config.CUSTOM_CONFIG)
-PLAYER_INFO_TEXT = pytesseract.image_to_string(config.PLAYER_INFO_IMAGE, config=config.CUSTOM_CONFIG)
-PLAYER_DATA_TEXT = pytesseract.image_to_string(config.PLAYER_DATA_IMAGE, config=config.CUSTOM_CONFIG)
 
 def scan_screen(func=None, region=None)->str:
     """
@@ -24,11 +21,11 @@ def scan_screen(func=None, region=None)->str:
     """
     if config.TEST:
             if func == 'alliance':
-                return ALLIANCE_TEXT
+                return pytesseract.image_to_string(str(config.ALLIANCE_INFO_IMAGE), config=config.CUSTOM_CONFIG)
             elif func == 'player_info':
-                return PLAYER_INFO_TEXT
+                return pytesseract.image_to_string(str(config.PLAYER_INFO_IMAGE), config=config.CUSTOM_CONFIG)
             elif func == 'player_data':
-                return PLAYER_DATA_TEXT
+                return pytesseract.image_to_string(str(config.PLAYER_DATA_IMAGE), config=config.CUSTOM_CONFIG)
     else:
         screen = pyautogui.screenshot(region=region)
         text = pytesseract.image_to_string(screen, config=config.TO_STRING_CONFIG)
