@@ -2,14 +2,15 @@
 import pytest
 import pytesseract
 import sys
+import platform
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session, sessionmaker
 
 from app import config
 from app.models import Base, Season, Alliance, Player
 
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
+if platform.system() == 'Windows':
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
 
 
