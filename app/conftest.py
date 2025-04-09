@@ -1,7 +1,8 @@
 
 import pytest
 import pytesseract
-
+import sys
+from unittest.mock import MagicMock
 from sqlalchemy.orm import Session, sessionmaker
 
 from app import config
@@ -10,6 +11,9 @@ from app.models import Base, Season, Alliance, Player
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
+
+
+sys.modules['pyautogui'] = MagicMock()
 
 @pytest.fixture(name='engine')
 def create_test_engine():
