@@ -22,11 +22,11 @@ PYTESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract'
 TO_STRING_CONFIG = r'--oem 3 --psm 6'
 
 # Database configurations
-USERNAME = con('DATABASE_USERNAME')
-PASSWORD = con('DATABASE_PASSWORD')
-HOST = con('DATABASE_HOSTNAME')
-PORT = con('DATABASE_PORT')
-DATABASE = con('DATABASE_NAME')
+USERNAME = con('DATABASE_USERNAME', default ='')
+PASSWORD = con('DATABASE_PASSWORD', default ='')
+HOST = con('DATABASE_HOSTNAME', default ='')
+PORT = con('DATABASE_PORT', default ='')
+DATABASE = con('DATABASE_NAME', default ='')
 POSTGRES_DATABASE = URL.create(
     "postgresql+psycopg2",
     username=USERNAME,
