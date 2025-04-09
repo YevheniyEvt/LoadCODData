@@ -1,6 +1,7 @@
 """
 Configuration and const
 """
+import os
 from pathlib import Path
 
 from sqlalchemy import create_engine
@@ -8,8 +9,8 @@ from sqlalchemy.engine import URL
 from decouple import config as con
 
 
-DEBUG = True
-TEST = True
+DEBUG = False
+TEST = False
 
 BASE_DIR = Path(__file__).parent
 
@@ -26,20 +27,20 @@ PYTESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract'
 TO_STRING_CONFIG = r'--oem 3 --psm 6'
 
 # Database configurations
-USERNAME = con('DATABASE_USERNAME', default ='')
-PASSWORD = con('DATABASE_PASSWORD', default ='')
-HOST = con('DATABASE_HOSTNAME', default ='')
-PORT = con('DATABASE_PORT', default ='')
-DATABASE = con('DATABASE_NAME', default ='')
-if USERNAME:
-    POSTGRES_DATABASE = URL.create(
-        "postgresql+psycopg2",
-        username=USERNAME,
-        password=PASSWORD,
-        host=HOST,
-        port=PORT,
-        database=DATABASE,
-    )
+USERNAME = con('DATABASE_USERNAME')
+PASSWORD = con('DATABASE_PASSWORD')
+HOST = con('DATABASE_HOSTNAME')
+PORT = con('DATABASE_PORT')
+DATABASE = con('DATABASE_NAME')
+
+POSTGRES_DATABASE = URL.create(
+    "postgresql+psycopg2",
+    username=USERNAME,
+    password=PASSWORD,
+    host=HOST,
+    port=PORT,
+    database=DATABASE,
+)
 TEST_URL = "sqlite+pysqlite:///:memory:"
 
 if DEBUG:
@@ -53,10 +54,6 @@ ENGINE = create_engine(DATABASE_URL, echo=ECHO)
 
 
 # all for testing
-# PLAYER_DATA_IMAGE = '..\\app\\test\\images\\player_data.png'
-# PLAYER_INFO_IMAGE ='..\\app\\test\\images\\player_info.png'
-# ALLIANCE_INFO_IMAGE = '..\\app\\test\\images\\alliance_info.png'
-
 PLAYER_DATA_IMAGE = BASE_DIR / 'test' / 'images' / 'player_data.png'
 PLAYER_INFO_IMAGE = BASE_DIR / 'test' / 'images' / 'player_info.png'
 ALLIANCE_INFO_IMAGE = BASE_DIR / 'test' / 'images' / 'alliance_info.png'

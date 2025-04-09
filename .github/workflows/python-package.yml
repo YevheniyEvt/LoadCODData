@@ -10,29 +10,53 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12.7"]
 
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      env:
+        DATABASE_USERNAME: test
+        DATABASE_PASSWORD: test
+        DATABASE_HOSTNAME: localhost
+        DATABASE_PORT: 5432
+        DATABASE_NAME: testdb
+
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.12.7
+
     - name: Install system dependencies (Tesseract)
       run: |
         sudo apt-get update
         sudo apt-get install -y tesseract-ocr
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         pip install -r requirements.txt
+
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
