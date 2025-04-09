@@ -27,14 +27,15 @@ PASSWORD = con('DATABASE_PASSWORD', default ='')
 HOST = con('DATABASE_HOSTNAME', default ='')
 PORT = con('DATABASE_PORT', default ='')
 DATABASE = con('DATABASE_NAME', default ='')
-POSTGRES_DATABASE = URL.create(
-    "postgresql+psycopg2",
-    username=USERNAME,
-    password=PASSWORD,
-    host=HOST,
-    port=PORT,
-    database=DATABASE,
-)
+if USERNAME:
+    POSTGRES_DATABASE = URL.create(
+        "postgresql+psycopg2",
+        username=USERNAME,
+        password=PASSWORD,
+        host=HOST,
+        port=PORT,
+        database=DATABASE,
+    )
 TEST_URL = "sqlite+pysqlite:///:memory:"
 
 if DEBUG:
