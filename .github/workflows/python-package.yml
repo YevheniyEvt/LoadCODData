@@ -32,12 +32,12 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      env:
-        DATABASE_USERNAME: test
-        DATABASE_PASSWORD: test
-        DATABASE_HOSTNAME: localhost
-        DATABASE_PORT: 5432
-        DATABASE_NAME: testdb
+    env:
+      DATABASE_USERNAME: test
+      DATABASE_PASSWORD: test
+      DATABASE_HOSTNAME: localhost
+      DATABASE_PORT: 5432
+      DATABASE_NAME: testdb
 
     steps:
     - uses: actions/checkout@v4
