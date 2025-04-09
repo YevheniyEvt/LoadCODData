@@ -1,7 +1,6 @@
 """
 Configuration and const
 """
-import os
 from pathlib import Path
 
 from sqlalchemy import create_engine
@@ -10,7 +9,7 @@ from decouple import config as con
 
 
 DEBUG = False
-TEST = False
+TEST = con('TEST', cast=bool, default=False)
 
 BASE_DIR = Path(__file__).parent
 
@@ -33,7 +32,7 @@ HOST = con('DATABASE_HOSTNAME')
 PORT = con('DATABASE_PORT')
 DATABASE = con('DATABASE_NAME')
 
-POSTGRES_DATABASE = URL.create(
+DATABASE_URL = URL.create(
     "postgresql+psycopg2",
     username=USERNAME,
     password=PASSWORD,
@@ -41,17 +40,13 @@ POSTGRES_DATABASE = URL.create(
     port=PORT,
     database=DATABASE,
 )
-TEST_URL = "sqlite+pysqlite:///:memory:"
+ECHO = False
 
-if DEBUG:
-    DATABASE_URL = TEST_URL
+if TEST or DEBUG:
+    DATABASE_URL = "sqlite+pysqlite:///:memory:"
     ECHO = True
-else:
-    DATABASE_URL = POSTGRES_DATABASE
-    ECHO = False
 
 ENGINE = create_engine(DATABASE_URL, echo=ECHO)
-
 
 # all for testing
 PLAYER_DATA_IMAGE = BASE_DIR / 'test' / 'images' / 'player_data.png'
