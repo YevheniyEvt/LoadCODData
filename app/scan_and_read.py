@@ -3,10 +3,11 @@ All what need to scan screen
 """
 import pytesseract
 import pyautogui
-
+import platform
 import config
 
-pytesseract.pytesseract.tesseract_cmd = config.PYTESSERACT_PATH
+if platform.system() == 'Windows':
+    pytesseract.pytesseract.tesseract_cmd = config.PYTESSERACT_PATH
 
 ALLIANCE_TEXT = pytesseract.image_to_string(config.ALLIANCE_INFO_IMAGE, config=config.CUSTOM_CONFIG)
 PLAYER_INFO_TEXT = pytesseract.image_to_string(config.PLAYER_INFO_IMAGE, config=config.CUSTOM_CONFIG)

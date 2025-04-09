@@ -10,7 +10,7 @@ from app import config
 from app.models import Base, Season, Alliance, Player
 
 if platform.system() == 'Windows':
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
+    pytesseract.pytesseract.tesseract_cmd = config.PYTESSERACT_PATH
 
 
 
