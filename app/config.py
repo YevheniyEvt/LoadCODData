@@ -50,7 +50,7 @@ ENGINE = create_engine(DATABASE_URL, echo=ECHO)
 
 
 # all for testing
-PLAYER_DATA_IMAGE = 'C:\\MyProects\\LoadCODData\\app\\test\\images\\player_data.png'
-PLAYER_INFO_IMAGE ='C:\\MyProects\\LoadCODData\\app\\test\\images\\player_info.png'
-ALLIANCE_INFO_IMAGE = f'C:\\MyProects\\LoadCODData\\app\\test\\images\\alliance_info.png'
+PLAYER_DATA_IMAGE = '..\\app\\test\\images\\player_data.png'
+PLAYER_INFO_IMAGE ='..\\app\\test\\images\\player_info.png'
+ALLIANCE_INFO_IMAGE = '..\\app\\test\\images\\alliance_info.png'
 CUSTOM_CONFIG = r'--oem 3 --psm 6'
